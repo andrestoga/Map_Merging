@@ -1,0 +1,9 @@
+nav_msgs/OccupancyGrid map1
+nav_msgs/OccupancyGrid map2
+uint8 n_hypothesis
+uint8 hough_increment
+bool randomized
+float32 fraction
+---
+transformation[] transformations
+# nav_msgs/OccupancyGrid map3

@@ -1,0 +1,8 @@
+g++ -I/usr/local/include   -fPIC -Wall -O2 -c grid_map.cpp
+g++ -I/usr/local/include   -fPIC -Wall -O2 -c hough.cpp
+g++ -I/usr/local/include   -fPIC -Wall -O2 -c io.cpp
+g++ -I/usr/local/include   -fPIC -Wall -O2 -c manipulatemap.cpp --> it needs OpenCV
+g++ -I/usr/local/include   -fPIC -Wall -O2 -c common.cpp
+g++ -shared -lopencv_core -lopencv_highgui -lm grid_map.o hough.o io.o  manipulatemap.o common.o -o libmapmerge.so
+g++ -I/usr/local/include   -fPIC -Wall -O2 -c test.cpp
+g++ -o test test.o -L. -lmapmerge -lopencv_core -lopencv_highgui -lm
