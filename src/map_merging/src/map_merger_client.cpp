@@ -27,30 +27,16 @@ using namespace mapmerge;
 #define OCCUPIED_CELL_OCC 100
 #define UNKNOWN_CELL_OCC -1
 
-void toOccGridMapRepr(std::vector<std::vector<unsigned int> > data, std::vector<std::vector<signed char> > &occ);
-
 double RESOLUTION;
 int SIZE;
 
-nav_msgs::OccupancyGrid initializeOccupancyGrid(int length, double resolution) {
-    RESOLUTION = resolution;
-    SIZE  = length;
-    nav_msgs::OccupancyGrid og;
-    // og.info.resolution = resolution;
-    // og.header.frame_id = "/world";
-    // og.info.origin.position.x = -SIZE/2;	//not sure why the negative or the divide by 2 but it works
-    // og.info.origin.position.y = -SIZE/2;	//not sure why the negative or the divide by 2 but it works
-    // og.header.stamp = ros::Time::now();
-    og.info.width = SIZE;
-    og.info.height = SIZE;
-    og.data.resize(SIZE * SIZE);
-    return og;
-}
+void toOccGridMapRepr(std::vector<std::vector<unsigned int> > data, std::vector<std::vector<signed char> > &occ);
 
-nav_msgs::OccupancyGrid updateOccupancyGrid(nav_msgs::OccupancyGrid og, int x, int y,int val) {
-    og.data[((y*og.info.width)+x)] = val;
-    return og;
-}
+nav_msgs::OccupancyGrid initializeOccupancyGrid(int length, double resolution);
+
+void toOccGridMapMsg(std::vector< std::vector<signed char> > &occ_vec, nav_msgs::OccupancyGrid &occ_map);
+
+nav_msgs::OccupancyGrid updateOccupancyGrid(nav_msgs::OccupancyGrid og, int x, int y,int val);
 
 int main(int argc, char **argv)
 {
@@ -75,29 +61,13 @@ int main(int argc, char **argv)
 	// convertToOccupancyGridMap(b.grid, srv.request.map2);
 
 	std::vector< std::vector<signed char> > occ_a;
+	std::vector< std::vector<signed char> > occ_b;
 
 	toOccGridMapRepr(a.grid, occ_a);
+	toOccGridMapMsg(occ_a, srv.request.map1);
 
-	int size=900;
-	// int map[5][5]= {		{ 0, 0, 0, 0, 0},			//Dummy Map
-	// 						{-1,-1,-1,-1, 0},
-	// 						{ 0, 0,-1,-1, 0},
-	// 						{ 0, 0,-1,-1, 0},
-	// 						{ 0, 0, 0, 0, 0}};
-	nav_msgs::OccupancyGrid og= initializeOccupancyGrid(size,2);		//initialize a SIZExSIZE OccupancyGrid
-	for(int row=0;row<size;row++)
-	{
-		for(int col=0;col<size;col++)
-		{
-			// og=updateOccupancyGrid(og,col,row,occ[row][col]);	//fill in OccupancyGrid with map
-
-			og.data[((row*og.info.width)+col)] = occ_a[row][col];
-
-			// ROS_INFO("Updating...");
-		}
-	}
-
-	srv.request.map1 = og;
+	toOccGridMapRepr(b.grid, occ_b);
+	toOccGridMapMsg(occ_b, srv.request.map2);
 
 	srv.request.n_hypothesis = n_hypothesis;
 	srv.request.hough_increment = 1;
@@ -108,10 +78,10 @@ int main(int argc, char **argv)
 	{
 		ROS_INFO("Success!!!");
 
-		// for (int i = 0; i < n_hypothesis; ++i)
-		// {
-		// 	ROS_INFO_STREAM("From the client: " << srv.response.transformations[i].ai << " " << srv.response.transformations[i].deltax << " " << srv.response.transformations[i].deltay << " " << srv.response.transformations[i].rotation);
-		// }
+		for (int i = 0; i < n_hypothesis; ++i)
+		{
+			ROS_INFO_STREAM("From the client: " << srv.response.transformations[i].ai << " " << srv.response.transformations[i].deltax << " " << srv.response.transformations[i].deltay << " " << srv.response.transformations[i].rotation);
+		}
 	}
 	else
 	{
@@ -165,4 +135,44 @@ void toOccGridMapRepr(std::vector<std::vector<unsigned int> > data, std::vector<
 			}
 		}	
 	}
+}
+
+nav_msgs::OccupancyGrid initializeOccupancyGrid(int length, double resolution)
+{
+    RESOLUTION = resolution;
+    SIZE  = length;
+    nav_msgs::OccupancyGrid og;
+    // og.info.resolution = resolution;
+    // og.header.frame_id = "/world";
+    // og.info.origin.position.x = -SIZE/2;	//not sure why the negative or the divide by 2 but it works
+    // og.info.origin.position.y = -SIZE/2;	//not sure why the negative or the divide by 2 but it works
+    // og.header.stamp = ros::Time::now();
+    og.info.width = SIZE;
+    og.info.height = SIZE;
+    og.data.resize(SIZE * SIZE);
+    return og;
+}
+
+nav_msgs::OccupancyGrid updateOccupancyGrid(nav_msgs::OccupancyGrid og, int x, int y,int val) {
+    og.data[((y*og.info.width)+x)] = val;
+    return og;
+}
+
+void toOccGridMapMsg(std::vector< std::vector<signed char> > &occ_vec, nav_msgs::OccupancyGrid &occ_map)
+{
+	int size=900;
+	nav_msgs::OccupancyGrid og= initializeOccupancyGrid(size,2);		//initialize a SIZExSIZE OccupancyGrid
+	for(int row=0;row<size;row++)
+	{
+		for(int col=0;col<size;col++)
+		{
+			// og=updateOccupancyGrid(og,col,row,occ[row][col]);	//fill in OccupancyGrid with map
+
+			og.data[((row*og.info.width)+col)] = occ_vec[row][col];
+
+			// ROS_INFO("Updating...");
+		}
+	}
+
+	occ_map = og;	
 }

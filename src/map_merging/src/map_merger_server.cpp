@@ -114,22 +114,22 @@ bool merge_two_maps(map_merging::MergeTwoMaps::Request  &req,
   //   ROS_INFO("\n");
   // }
 
-  map1.save_map("/home/andrestoga/ros_map_merging/src/map_merging/src/fromMsg.txt");
+  // map1.save_map("/home/andrestoga/ros_map_merging/src/map_merging/src/fromMsg.txt");
   // map1.save_map("/home/andrestoga/map_merging/src/map_merging/src/fromMsg.txt");
 
-  // std::vector<transformation> hyp = get_hypothesis(a, b, req.n_hypothesis, req.hough_increment, req.randomized);
+  std::vector<transformation> hyp = get_hypothesis(map1, map2, req.n_hypothesis, req.hough_increment, req.randomized);
 
-  // res.transformations.resize(req.n_hypothesis);
+  res.transformations.resize(req.n_hypothesis);
 
-  // for ( unsigned int i = 0 ; i < req.n_hypothesis ; i++ )
-  // {
-  //   res.transformations[i].ai = hyp[i].ai;
-  //   res.transformations[i].deltax = hyp[i].deltax;
-  //   res.transformations[i].deltay = hyp[i].deltay;
-  //   res.transformations[i].rotation = hyp[i].rotation;
+  for ( unsigned int i = 0 ; i < req.n_hypothesis ; i++ )
+  {
+    res.transformations[i].ai = hyp[i].ai;
+    res.transformations[i].deltax = hyp[i].deltax;
+    res.transformations[i].deltay = hyp[i].deltay;
+    res.transformations[i].rotation = hyp[i].rotation;
 
-  //   ROS_INFO_STREAM("From the server: " << hyp[i].ai << " " << hyp[i].deltax << " " << hyp[i].deltay << " " <<  hyp[i].rotation);
-  // }
+    // ROS_INFO_STREAM("From the server: " << hyp[i].ai << " " << hyp[i].deltax << " " << hyp[i].deltay << " " <<  hyp[i].rotation);
+  }
 
   return true;
 }
